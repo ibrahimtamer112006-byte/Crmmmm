@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>المتابعة اليومية</title>
+<style>
+:root{--bg:#eef6f5;--card:#fff;--text:#10292b;--muted:#5f7f81;--acc:#0f766e;--accText:#fff;--line:#d3e5e3;--chip:#f3faf9;--ok:#16a34a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1416;--card:#132225;--text:#e4f4f2;--muted:#8fb0b2;--acc:#2dd4bf;--accText:#06201d;--line:#223a3d;--chip:#0f1c1e;--ok:#4ade80}}
+:root[data-theme="dark"]{--bg:#0b1416;--card:#132225;--text:#e4f4f2;--muted:#8fb0b2;--acc:#2dd4bf;--accText:#06201d;--line:#223a3d;--chip:#0f1c1e;--ok:#4ade80}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:720px;margin:0 auto;padding:20px 14px 40px}
+h1{text-align:center;color:var(--acc);margin:8px 0 2px;font-size:1.6rem}
+.date{text-align:center;color:var(--muted);margin:0 0 18px;font-size:.95rem}
+h2{font-size:1.1rem;margin:24px 0 10px;color:var(--acc)}
+.player{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.top input{font:inherit;font-weight:700;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--text);width:55%;padding:2px 0}
+.save{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:7px 16px;background:var(--acc);color:var(--accText);font-weight:700}
+.save.done{background:transparent;color:var(--ok);border:1px solid var(--ok);cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--chip);color:var(--text);border-radius:999px;padding:7px 14px;transition:.15s}
+.chip.on{background:var(--acc);color:var(--accText);border-color:var(--acc);font-weight:700}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.nav button{font:inherit;cursor:pointer;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:6px 14px}
+.nav span{font-weight:600;font-size:.95rem;text-align:center}
+.scroll{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.9rem}
+th,td{padding:9px 8px;text-align:center;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:.8rem}
+th:first-child,td:first-child{text-align:right;padding-right:14px;font-weight:600}
+tr:last-child td{border-bottom:0}
+td.tot{font-weight:700;color:var(--acc)}
+td.today,th.today{background:var(--chip)}
+td.z{color:var(--muted);opacity:.5}
+
+.cm-form{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px;display:flex;flex-direction:column;gap:8px}
+.cm-form select,.cm-form textarea{font:inherit;color:var(--text);background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%}
+.cm-form textarea{min-height:70px;resize:vertical}
+.cm-form .save{align-self:flex-start}
+.cm{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:8px}
+.cm .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--muted);font-size:.8rem;margin-bottom:4px}
+.cm .meta b{color:var(--acc);font-size:.95rem}
+.cm .txt{white-space:pre-wrap;word-break:break-word}
+.cm .del{font:inherit;font-size:.8rem;cursor:pointer;background:transparent;border:0;color:var(--muted)}
+.note{color:var(--muted);font-size:.9rem;text-align:center;padding:10px}
+.login{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 14px;text-align:center}
+.login h2{margin-top:0}
+.login p{color:var(--muted);margin:0 0 12px;font-size:.92rem}
+.pick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pick button{font:inherit;cursor:pointer;border:1px solid var(--acc);background:var(--chip);color:var(--text);border-radius:12px;padding:10px 18px;font-weight:600}
+.pick button:disabled{opacity:.4;cursor:not-allowed;border-color:var(--line)}
+.who{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--chip);border:1px solid var(--line);border-radius:12px;padding:8px 14px;margin-bottom:6px;font-size:.92rem}
+.who button{font:inherit;font-size:.85rem;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:4px 12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>المتابعة اليومية</h1>
+  <p class="date" id="today"></p>
+
+  <div class="login" id="login" hidden>
+    <h2>تسجيل الدخول</h2>
+    <p id="loginMsg">اختار اسمك علشان تدخل. كل اسم بيتحجز لحساب واحد بس.</p>
+    <div class="pick" id="loginPick"></div>
+  </div>
+
+  <div id="main" hidden>
+  <div class="who" id="who" hidden><span id="whoName"></span><button id="logout">خروج</button></div>
+
+  <h2>اختيارات النهارده</h2>
+  <div id="players"></div>
+
+  <h2>نتيجة الأسبوع</h2>
+  <div class="nav">
+    <button id="prev">→ الأسبوع اللي فات</button>
+    <span id="range"></span>
+    <button id="next">الأسبوع الجاي ←</button>
+  </div>
+  <div class="scroll"><table id="week"></table></div>
+
+  <h2>التعليقات</h2>
+  <div class="cm-form" id="cmForm" hidden>
+    <select id="cmName" aria-label="الاسم"></select>
+    <textarea id="cmText" maxlength="500" placeholder="اكتب تعليقك هنا..."></textarea>
+    <button class="save" id="cmSend">إرسال التعليق</button>
+  </div>
+  <div id="cmList"><div class="note">جاري تحميل التعليقات...</div></div>
+  </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// === الصق هنا إعدادات Firebase بتاعتك ===
+var FIREBASE_CONFIG={
+  apiKey:"PASTE_HERE",
+  authDomain:"PASTE_HERE",
+  projectId:"PASTE_HERE",
+  storageBucket:"PASTE_HERE",
+  messagingSenderId:"PASTE_HERE",
+  appId:"PASTE_HERE"
+};
+// =========================================
+var OPTIONS=["Single","Marketplace","Tiktok","Instagram","Souq"];
+var DEFAULT_NAMES=["Ibrahim","Sama","Naiera","Donia","Hanen","Ayat","Marwan"];
+var DAYS=["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة"];
+var names=DEFAULT_NAMES.slice();
+var saved={};          // {dateKey:{index:[picks]}}
+var draft=names.map(function(){return[]});
+var weekOffset=0;
+var sdb=null,firstSaved=true,me=-1;
+var fillNames=function(){};
+
+try{var n=JSON.parse(localStorage.getItem("daily-names"));if(Array.isArray(n)&&n.length===7)names=n}catch(e){}
+try{var sv=JSON.parse(localStorage.getItem("daily-saved"));if(sv&&typeof sv==="object")saved=sv}catch(e){}
+function persist(){try{localStorage.setItem("daily-saved",JSON.stringify(saved));localStorage.setItem("daily-names",JSON.stringify(names))}catch(e){}}
+
+function key(d){var m=d.getMonth()+1,x=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(x<10?"0":"")+x}
+var now=new Date();
+var todayKey=key(now);
+document.getElementById("today").textContent=now.toLocaleDateString("ar-EG",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+function savedFor(i,k){return(saved[k]&&saved[k][i])||[]}
+function same(a,b){return a.length===b.length&&a.every(function(x){return b.indexOf(x)>-1})}
+draft=names.map(function(_,i){return savedFor(i,todayKey).slice()});
+
+function renderPlayers(){
+  var el=document.getElementById("players");el.innerHTML="";
+  names.forEach(function(nm,i){
+    if(me>=0&&i!==me)return;
+    var d=document.createElement("div");d.className="player";
+    var top=document.createElement("div");top.className="top";
+    var inp=document.createElement("input");inp.value=nm;inp.setAttribute("aria-label","الاسم");
+    inp.addEventListener("change",function(){names[i]=inp.value.trim()||DEFAULT_NAMES[i];persist();if(sdb){sdb.doc("meta/names").set({list:names}).catch(function(){})}fillNames();renderWeek()});
+    var isSaved=!!(saved[todayKey]&&saved[todayKey][i])&&same(draft[i],savedFor(i,todayKey));
+    var b=document.createElement("button");b.className="save"+(isSaved?" done":"");
+    b.textContent=isSaved?"تم الحفظ ✓":"حفظ";
+    b.addEventListener("click",function(){
+      if(isSaved)return;
+      if(!saved[todayKey])saved[todayKey]={};
+      saved[todayKey][i]=draft[i].slice();
+      persist();
+      if(sdb){sdb.doc("saved/"+todayKey+"_"+i).set({date:todayKey,i:i,picks:draft[i].slice()}).catch(function(){alert("مقدرتش أحفظ للكل. اتأكد من النت وإعدادات Firebase.")})}
+      renderPlayers();renderWeek();
+    });
+    top.appendChild(inp);top.appendChild(b);d.appendChild(top);
+    var chips=document.createElement("div");chips.className="chips";
+    OPTIONS.forEach(function(o){
+      var c=document.createElement("button");
+      c.className="chip"+(draft[i].indexOf(o)>-1?" on":"");c.textContent=o;
+      c.addEventListener("click",function(){
+        var k=draft[i].indexOf(o);
+        if(k>-1)draft[i].splice(k,1);else draft[i].push(o);
+        renderPlayers();
+      });
+      chips.appendChild(c);
+    });
+    d.appendChild(chips);el.appendChild(d);
+  });
+}
+
+function weekStart(off){
+  var d=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  var back=(d.getDay()+1)%7;           // Saturday = start of week
+  d.setDate(d.getDate()-back+off*7);
+  return d;
+}
+
+function renderWeek(){
+  var start=weekStart(weekOffset);
+  var days=[];
+  for(var j=0;j<7;j++){var x=new Date(start);x.setDate(start.getDate()+j);days.push(x)}
+  var end=days[6];
+  var fmt={day:"numeric",month:"short"};
+  document.getElementById("range").textContent=start.toLocaleDateString("ar-EG",fmt)+" – "+end.toLocaleDateString("ar-EG",fmt);
+  document.getElementById("next").style.visibility=weekOffset>=0?"hidden":"visible";
+  var t=document.getElementById("week");t.innerHTML="";
+  var h=document.createElement("tr");
+  h.innerHTML="<th>الاسم</th>";
+  days.forEach(function(dt,j){
+    var th=document.createElement("th");
+    if(key(dt)===todayKey)th.className="today";
+    th.textContent=DAYS[j];h.appendChild(th);
+  });
+  var ht=document.createElement("th");ht.textContent="المجموع";h.appendChild(ht);
+  t.appendChild(h);
+  var rows=names.map(function(nm,i){
+    var tot=0,cells=days.map(function(dt){var c=savedFor(i,key(dt)).length;tot+=c;return{c:c,today:key(dt)===todayKey}});
+    return{nm:nm,cells:cells,tot:tot,i:i};
+  }).sort(function(a,b){return b.tot-a.tot||a.i-b.i});
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    var td0=document.createElement("td");td0.textContent=r.nm;tr.appendChild(td0);
+    r.cells.forEach(function(c){
+      var td=document.createElement("td");
+      td.className=(c.today?"today ":"")+(c.c===0?"z":"");
+      td.textContent=c.c;tr.appendChild(td);
+    });
+    var tt=document.createElement("td");tt.className="tot";tt.textContent=r.tot;tr.appendChild(tt);
+    t.appendChild(tr);
+  });
+}
+
+document.getElementById("prev").addEventListener("click",function(){weekOffset--;renderWeek()});
+document.getElementById("next").addEventListener("click",function(){if(weekOffset<0){weekOffset++;renderWeek()}});
+renderPlayers();renderWeek();
+
+(async function(){
+  var list=document.getElementById("cmList"),form=document.getElementById("cmForm");
+  var sel=document.getElementById("cmName"),txt=document.getElementById("cmText"),send=document.getElementById("cmSend");
+  var db=null,user=null,canWrite=null,isAdmin=false;
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    var cred=await firebase.auth().signInAnonymously();
+    var theUid=cred.user.uid;
+    db=firebase.firestore();
+    user={id:async function(){return theUid},can:async function(){return true},canEdit:async function(){return false}};
+  }catch(e){db=null}
+  var mainEl=document.getElementById("main"),loginEl=document.getElementById("login");
+  if(!db){mainEl.hidden=false;list.innerHTML='<div class="note">المزامنة والتعليقات مش شغالة. اتأكد من إعدادات Firebase في الملف.</div>';return}
+  try{if(user){canWrite=await user.can("data.write");isAdmin=await user.canEdit()}}catch(e){}
+  if(canWrite!==false){
+    fillNames=function(){var cur=sel.value;sel.innerHTML="";(me>=0?[names[me]]:names).forEach(function(n){var o=document.createElement("option");o.textContent=n;sel.appendChild(o)});if(cur&&names.indexOf(cur)>-1&&me<0)sel.value=cur};
+    fillNames();
+    form.hidden=false;
+  }
+  sdb=db;
+  var uid=null;
+  try{if(user)uid=await user.id()}catch(e){}
+  if(!uid){mainEl.hidden=false}
+  else{
+    var claims={};
+    var pickEl=document.getElementById("loginPick"),whoEl=document.getElementById("who");
+    function applyLogin(){
+      var mine=-1;
+      Object.keys(claims).forEach(function(k){if(claims[k]===uid)mine=+k});
+      var changed=mine!==me;me=mine;
+      if(me>=0){
+        loginEl.hidden=true;mainEl.hidden=false;whoEl.hidden=false;
+        document.getElementById("whoName").textContent="داخل باسم: "+names[me];
+      }else{
+        mainEl.hidden=true;whoEl.hidden=true;loginEl.hidden=false;
+        pickEl.innerHTML="";
+        names.forEach(function(n,i){
+          var b=document.createElement("button");b.textContent=n;
+          var taken=claims[i]&&claims[i]!==uid;
+          b.disabled=!!taken;if(taken)b.title="الاسم ده محجوز";
+          b.addEventListener("click",async function(){
+            try{
+              var cur=await db.doc("claims/"+i).get();
+              if(cur.exists&&cur.data().uid!==uid){alert("الاسم ده اتحجز لحد تاني.");return}
+              await db.doc("claims/"+i).set({uid:uid});
+            }catch(e){alert("مقدرتش أسجلك. اتأكد من النت وإعدادات Firebase.")}
+          });
+          pickEl.appendChild(b);
+        });
+      }
+      if(changed){fillNames();renderPlayers();renderWeek()}
+    }
+    db.collection("claims").onSnapshot(function(snap){
+      claims={};
+      snap.docs.forEach(function(d){var v=d.data();if(v&&v.uid)claims[d.id]=v.uid});
+      applyLogin();
+    },function(){mainEl.hidden=false});
+    document.getElementById("logout").addEventListener("click",function(){
+      if(me>=0)db.doc("claims/"+me).delete().catch(function(){});
+    });
+    var oldNames=null;
+    db.doc("meta/names").onSnapshot(function(){if(me<0)applyLogin();else document.getElementById("whoName").textContent="داخل باسم: "+names[me]},function(){});
+  }
+  db.collection("saved").orderBy("date","desc").limit(1000).onSnapshot(function(snap){
+    var m={};
+    snap.docs.forEach(function(d){var v=d.data();if(v&&v.date&&typeof v.i==="number"&&Array.isArray(v.picks)){(m[v.date]=m[v.date]||{})[v.i]=v.picks}});
+    saved=m;
+    if(firstSaved){firstSaved=false;draft=names.map(function(_,i){return savedFor(i,todayKey).slice()})}
+    renderPlayers();renderWeek();
+  },function(){});
+  db.doc("meta/names").onSnapshot(function(d){
+    var v=d.exists&&d.data();
+    if(v&&Array.isArray(v.list)&&v.list.length===7){names=v.list.map(String);fillNames();renderPlayers();renderWeek()}
+  },function(){});
+  var col=db.collection("comments");
+  function fmt(t){return new Date(t).toLocaleString("ar-EG",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}
+  function draw(docs){
+    list.innerHTML="";
+    if(!docs.length){list.innerHTML='<div class="note">مفيش تعليقات لسه. كون أول واحد!</div>';return}
+    docs.forEach(function(d){
+      var c=d.data();
+      var box=document.createElement("div");box.className="cm";
+      var meta=document.createElement("div");meta.className="meta";
+      var who=document.createElement("b");who.textContent=c.name||"";
+      var right=document.createElement("span");right.textContent=fmt(c.ts||0)+" ";
+      if(isAdmin){
+        var x=document.createElement("button");x.className="del";x.textContent="حذف";
+        x.addEventListener("click",function(){col.doc(d.id).delete().catch(function(){})});
+        right.appendChild(x);
+      }
+      meta.appendChild(who);meta.appendChild(right);
+      var body=document.createElement("div");body.className="txt";body.textContent=c.text||"";
+      box.appendChild(meta);box.appendChild(body);list.appendChild(box);
+    });
+  }
+  col.orderBy("ts","desc").limit(100).onSnapshot(function(snap){draw(snap.docs)},function(){
+    list.innerHTML='<div class="note">مش قادر أحمّل التعليقات دلوقتي.</div>';
+  });
+  send.addEventListener("click",async function(){
+    var t=txt.value.trim();if(!t)return;
+    send.disabled=true;
+    try{await col.add({name:sel.value,text:t,ts:Date.now()});txt.value=""}
+    catch(e){alert("مقدرتش أبعت التعليق. اتأكد من النت.")}
+    send.disabled=false;
+  });
+})();
+</script>
+</body>
+</html>
